@@ -9,12 +9,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="35,29,0,0" VerticalAlignment="Top"/>
-        <Button Content="Button" HorizontalAlignment="Center" Margin="0,29,0,0" VerticalAlignment="Top"/>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="262,29,0,0" VerticalAlignment="Top"/>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="35,100,0,0" VerticalAlignment="Top"/>
-        <Button Content="Button" HorizontalAlignment="Center" Margin="0,100,0,0" VerticalAlignment="Top"/>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="262,100,0,0" VerticalAlignment="Top"/>
-
+        <Button Content="Button" HorizontalAlignment="Left" Margin="83,69,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <TextBox x:Name="StringRest" HorizontalAlignment="Left" Margin="55,169,0,0" Text="TextBox" VerticalAlignment="Top" Height="421" Width="272"/>
     </Grid>
 </Page>
