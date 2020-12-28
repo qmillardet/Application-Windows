@@ -16,13 +16,13 @@ namespace Projet_STER
 	{
 	public:
 		MainPage();
-
 		int getDataFromServer();
 
 	private:
 		void Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void AfficherInfo(Platform::String^ nomMote);
+		Platform::String^ recupererDonneesMote(Windows::Data::Json::JsonObject^ objJson, Platform::String^ label);
 		bool isFilterUsed;
-		MainPage^ rootPage;
 		Windows::Web::Http::Filters::HttpBaseProtocolFilter^ filter;
 		Windows::Web::Http::HttpClient^ httpClient;
 		concurrency::cancellation_token_source cancellationTokenSource;

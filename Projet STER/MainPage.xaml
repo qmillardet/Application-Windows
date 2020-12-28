@@ -9,7 +9,16 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="83,69,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-        <TextBox x:Name="StringRest" HorizontalAlignment="Left" Margin="55,169,0,0" Text="TextBox" VerticalAlignment="Top" Height="421" Width="272"/>
+        <Button Content="Amphis Nord" HorizontalAlignment="Left" Margin="83,69,0,0" VerticalAlignment="Top" Click="Button_Click"/>
+        <TextBox x:Name="editTemperature" Margin="131,270,131,0" Text="Temperature" VerticalAlignment="Top"/>
+        <TextBox x:Name="editHumidite" HorizontalAlignment="Center" Margin="0,320,0,0" Text="Humidité" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="27,373,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBox x:Name="editBatterie" HorizontalAlignment="Center" Margin="0,375,0,0" Text="Batterie" VerticalAlignment="Top"/>
+        <TextBox x:Name="editLumiere" HorizontalAlignment="Center" Margin="0,430,0,0" Text="Humidité" VerticalAlignment="Top" />
+        <TextBlock HorizontalAlignment="Left" Margin="27,277,0,0" Text="Temperature" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="-1.997,3.613"/>
+        <StackPanel HorizontalAlignment="Left" Height="100" Margin="83,0,0,0" VerticalAlignment="Center" Width="100"/>
+        <TextBlock HorizontalAlignment="Left" Margin="37,327,0,0" Text="Humidité" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="37,382,0,0" Text="Batterie" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="37,437,0,0" Text="Lumière" TextWrapping="Wrap" VerticalAlignment="Top"/>
     </Grid>
 </Page>
