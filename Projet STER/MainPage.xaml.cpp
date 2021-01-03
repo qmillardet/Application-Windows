@@ -6,6 +6,7 @@
 #include "pch.h"
 #include "MainPage.xaml.h"
 #include <iostream>
+#include <thread>
 
 
 using namespace Projet_STER;
@@ -28,10 +29,59 @@ using namespace Windows::Data::Json;
 
 // Pour plus d'informations sur le modèle d'élément Page vierge, consultez la page https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
+DWORD MyThreadIDDec;
+HANDLE MyThreadDec;
+
+std::mutex My_mutex_dec;
+
+Platform::String^ nomMote;
+Platform::String^ temprature;
+Platform::String^ humidite;
+Platform::String^ batterie;
+Platform::String^ lumiere;
+
+auto url = String::Concat("http://iotlab.telecomnancy.eu:8080/iotlab/rest/data/1/temperature-light2-light1-battery_indicator-humidity/1/", nomMote);
+Windows::Foundation::Uri^ uri = ref new Uri(url);
+
+
+
+DWORD WINAPI myThreadDecFunc(LPVOID lpParameter)
+{
+	for (;;) {
+		My_mutex_dec.lock();
+		Windows::Web::Http::HttpClient^ httpClient = ref new HttpClient();
+		create_task(httpClient->GetStringAsync(uri))
+			.then([=](Platform::String^ Tet)
+		{
+			auto jsonParse = JsonObject::Parse(Tet);
+			Platform::String^ label = "temperature";
+			temprature = "ici";
+			label = "humidity";
+			//Platform::String^ humidite = recupererDonneesMote(jsonParse, label);
+			label = "light1";
+			//Platform::String^ lumiere = recupererDonneesMote(jsonParse, label);
+			label = "battery_indicator";
+			//Platform::String^ batterie = recupererDonneesMote(jsonParse, label);
+			
+
+			return task_from_result();
+		});
+		My_mutex_dec.unlock();
+	}
+	return 0;
+}
+
 MainPage::MainPage()
 {
 	InitializeComponent();
 	MainPage::getDataFromServer();
+	auto timer = ref new Windows::UI::Xaml::DispatcherTimer();
+	TimeSpan ts;
+	ts.Duration = 2000;
+	timer->Interval = ts;
+	timer->Start();
+	auto registrationtoken = timer->Tick += ref new EventHandler<Object^>(this, &MainPage::OnTick);
+	MyThreadDec = CreateThread(NULL, 0, myThreadDecFunc, (void*)this, 0, &MyThreadIDDec);
 }
 
 int MainPage::getDataFromServer()
@@ -43,36 +93,22 @@ int MainPage::getDataFromServer()
 void Projet_STER::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Amphis Nord
-	AfficherInfo("9.138");
+	nomMote = "9.138";
+	My_mutex_dec.lock();
+	My_mutex_dec.unlock();
+}
+
+void Projet_STER::MainPage::OnTick(Object ^ sender, Object ^ e) {
+	editTemperature->Text = temprature;
+	editHumidite->Text = humidite;
+	editBatterie->Text = batterie;
+	editLumiere->Text = lumiere;
 }
 
 void Projet_STER::MainPage::AfficherInfo(Platform::String^ nomMote)
 {
 
-	auto url = String::Concat("http://iotlab.telecomnancy.eu:8080/iotlab/rest/data/1/temperature-light2-light1-battery_indicator-humidity/1/" , nomMote);
-	Windows::Foundation::Uri^ uri = ref new Uri(url);
-	Windows::Web::Http::HttpClient^ httpClient = ref new HttpClient();
-	create_task(httpClient->GetStringAsync(uri))
-		.then([=](Platform::String^ Tet)
-	{
-		auto jsonParse = JsonObject::Parse(Tet);
-		Platform::String^ label = "temperature";
-		Platform::String^ temprature = recupererDonneesMote(jsonParse, label);
-		label = "humidity";
-		Platform::String^ humidite = recupererDonneesMote(jsonParse, label);
-		label = "light1";
-		Platform::String^ lumiere = recupererDonneesMote(jsonParse, label);
-		label = "battery_indicator";
-		Platform::String^ batterie = recupererDonneesMote(jsonParse, label);
-		editTemperature->Text = temprature + "°C";
-		editHumidite->Text = humidite;
-		editBatterie->Text = batterie;
-		editLumiere->Text = lumiere;
-		
-		return task_from_result();
-	}).then([](void) {
-		OutputDebugString(L"Données récupérées.");
-	});
+	
 }
 
 /*

@@ -20,6 +20,7 @@ namespace Projet_STER
 
 	private:
 		void Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void OnTick(Object ^ sender, Object ^ e);
 		void AfficherInfo(Platform::String^ nomMote);
 		Platform::String^ recupererDonneesMote(Windows::Data::Json::JsonObject^ objJson, Platform::String^ label);
 		bool isFilterUsed;
