@@ -5,13 +5,14 @@
 
 #include "pch.h"
 #include "MainPage.xaml.h"
-#include <iostream>
 #include <thread>
+//#include <mutex>
+#include <shared_mutex>
 
 
 using namespace Projet_STER;
 
-using namespace concurrency;
+using namespace Concurrency;
 using namespace Platform;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
@@ -27,6 +28,7 @@ using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
 using namespace Windows::Data::Json;
 
+using namespace std;
 // Pour plus d'informations sur le modèle d'élément Page vierge, consultez la page https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 DWORD MyThreadIDDec;
@@ -40,35 +42,58 @@ Platform::String^ humidite;
 Platform::String^ batterie;
 Platform::String^ lumiere;
 
+Projet_STER::MainPage^ instance;
+
 auto url = String::Concat("http://iotlab.telecomnancy.eu:8080/iotlab/rest/data/1/temperature-light2-light1-battery_indicator-humidity/1/", nomMote);
 Windows::Foundation::Uri^ uri = ref new Uri(url);
 
 
+HANDLE Verrou;
+shared_mutex Ver;
 
-DWORD WINAPI myThreadDecFunc(LPVOID lpParameter)
+
+static UINT Inc()
 {
-	for (;;) {
-		My_mutex_dec.lock();
+	Sleep(1);	//attente pour la création du Mutex
+	while (TRUE) {
+		Ver.lock();
 		Windows::Web::Http::HttpClient^ httpClient = ref new HttpClient();
 		create_task(httpClient->GetStringAsync(uri))
 			.then([=](Platform::String^ Tet)
 		{
 
 			OutputDebugString(L"Je passe là\n");
-			auto jsonParse = JsonObject::Parse(Tet);
+			auto objJson = JsonObject::Parse(Tet);
 			Platform::String^ label = "temperature";
-			temprature = "ici";
+			JsonArray^ data = objJson->GetObject()->GetNamedArray("data")->GetArray();
+			int jsonArraySize = data->Size;
+			for (int i = 0; i < jsonArraySize; i++) {
+				if (data->GetObjectAt(i)->GetNamedString("label")->Equals(label)) {
+					temprature = data->GetObjectAt(i)->GetNamedValue("value")->ToString();
+				}
+			}
 			label = "humidity";
-			//Platform::String^ humidite = recupererDonneesMote(jsonParse, label);
+			for (int i = 0; i < jsonArraySize; i++) {
+				if (data->GetObjectAt(i)->GetNamedString("label")->Equals(label)) {
+					humidite = data->GetObjectAt(i)->GetNamedValue("value")->ToString();
+				}
+			}
 			label = "light1";
-			//Platform::String^ lumiere = recupererDonneesMote(jsonParse, label);
+			for (int i = 0; i < jsonArraySize; i++) {
+				if (data->GetObjectAt(i)->GetNamedString("label")->Equals(label)) {
+					lumiere = data->GetObjectAt(i)->GetNamedValue("value")->ToString();
+				}
+			}
 			label = "battery_indicator";
-			//Platform::String^ batterie = recupererDonneesMote(jsonParse, label);
+			for (int i = 0; i < jsonArraySize; i++) {
+				if (data->GetObjectAt(i)->GetNamedString("label")->Equals(label)) {
+					batterie = data->GetObjectAt(i)->GetNamedValue("value")->ToString();
+				}
+			}
 			
 
 			return task_from_result();
 		});
-		My_mutex_dec.unlock();
 	}
 	return 0;
 }
@@ -83,7 +108,16 @@ MainPage::MainPage()
 	timer->Interval = ts;
 	timer->Start();
 	auto registrationtoken = timer->Tick += ref new EventHandler<Object^>(this, &MainPage::OnTick);
-	MyThreadDec = CreateThread(NULL, 0, myThreadDecFunc, (void*)this, 0, &MyThreadIDDec);
+
+	// Création des Threads
+	thread TH_Inc(Inc);
+	TH_Inc.detach();
+
+
+	Ver.lock();
+
+	//Sauvegarde
+	instance = this;
 }
 
 int MainPage::getDataFromServer()
@@ -95,9 +129,8 @@ int MainPage::getDataFromServer()
 void Projet_STER::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Amphis Nord
-	nomMote = "9.138";
-	My_mutex_dec.lock();
-	My_mutex_dec.unlock();
+	nomMote = "9.138"; 
+	Ver.unlock();
 }
 
 void Projet_STER::MainPage::OnTick(Object ^ sender, Object ^ e) {
