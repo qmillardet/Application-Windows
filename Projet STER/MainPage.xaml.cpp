@@ -53,6 +53,8 @@ DWORD WINAPI myThreadDecFunc(LPVOID lpParameter)
 		create_task(httpClient->GetStringAsync(uri))
 			.then([=](Platform::String^ Tet)
 		{
+
+			OutputDebugString(L"Je passe là\n");
 			auto jsonParse = JsonObject::Parse(Tet);
 			Platform::String^ label = "temperature";
 			temprature = "ici";
