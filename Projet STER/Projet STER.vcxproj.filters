@@ -21,6 +21,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h" />
     <ClInclude Include="MainPage.xaml.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\LockScreenLogo.scale-200.png">
@@ -167,8 +168,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Projet STER_TemporaryKey.pfx" />
+    <None Include="..\motes_information.csv">
+      <Filter>Assets</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Projet STER.rc" />
   </ItemGroup>
 </Project>
