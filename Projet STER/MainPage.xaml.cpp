@@ -14,9 +14,11 @@
 #include <iterator>
 #include <locale> 
 #include <codecvt>
+# define M_PI           3.14159265358979323846  /* pi */
 
 
 using namespace Projet_STER;
+using namespace Windows::Data::Xml::Dom;
 
 using namespace Concurrency;
 using namespace Platform;
@@ -32,9 +34,14 @@ using namespace Windows::UI::Xaml::Data;
 using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
+using namespace Windows::UI::Notifications;
 using namespace Windows::Data::Json;
 using namespace Windows::Storage;
 using namespace Windows::Storage::Streams;
+
+using namespace Windows::UI::Core;
+
+using namespace Windows::Devices::Geolocation;
 
 using namespace std;
 // Pour plus d'informations sur le modèle d'élément Page vierge, consultez la page https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -49,6 +56,7 @@ Platform::String^ temprature;
 Platform::String^ humidite;
 Platform::String^ batterie;
 Platform::String^ lumiere;
+Platform::String^ nomMoteSimple;
 
 Projet_STER::MainPage^ instance;
 
@@ -62,8 +70,8 @@ shared_mutex Ver;
 struct MoteInfoCSV {
 	Platform::String^ numMote;
 	Platform::String^ nomMote;
-	float latitude;
-	float longitude;
+	double latitude;
+	double longitude;
 };
 
 std::vector<MoteInfoCSV> listOfMote;
@@ -73,12 +81,12 @@ static UINT Inc()
 	Sleep(1);	//attente pour la création du Mutex
 	while (TRUE) {
 		Ver.lock();
+		bool reussi = false;
 		Windows::Web::Http::HttpClient^ httpClient = ref new HttpClient();
-		create_task(httpClient->GetStringAsync(uri))
-			.then([=](Platform::String^ Tet)
+		auto my_task = create_task(httpClient->GetStringAsync(uri))
+			.then([](Platform::String^ Tet)
 		{
 
-			OutputDebugString(L"Je passe là\n");
 			auto objJson = JsonObject::Parse(Tet);
 			Platform::String^ label = "temperature";
 			JsonArray^ data = objJson->GetObject()->GetNamedArray("data")->GetArray();
@@ -106,10 +114,35 @@ static UINT Inc()
 					batterie = data->GetObjectAt(i)->GetNamedValue("value")->ToString();
 				}
 			}
-			
+
 
 			return task_from_result();
 		});
+		try {
+			my_task.wait();
+		}
+		catch (Exception^ e) {
+			String^ xml = "<toast activationType='foreground'>"
+				"<visual>"
+				"<binding template='ToastGeneric'>"
+				"<text>Erreur</text>"
+				"</binding>"
+				"</visual>"
+				"</toast>";
+
+			XmlDocument^ doc = ref new XmlDocument();
+			doc->LoadXml(xml);
+
+			auto binding = doc->SelectSingleNode("//binding");
+
+			auto el = doc->CreateElement("text");
+			el->InnerText = L"Erreur lors du chargement des données";
+			binding->AppendChild(el); // Add content to notification
+
+			auto toast = ref new ToastNotification(doc);
+
+			ToastNotificationManager::CreateToastNotifier()->Show(toast); // Show the toast
+		}
 	}
 	return 0;
 }
@@ -134,6 +167,66 @@ MainPage::MainPage()
 
 	//Sauvegarde
 	instance = this;
+
+	MoteInfoCSV info;
+	info.nomMote = L"Amphi Nord";
+	info.numMote = L"9.138";
+	info.latitude = 48.669422;
+	info.longitude = 6.155112;
+
+	MoteInfoCSV info1;
+	info1.nomMote = L"Amphi Sud";
+	info1.numMote = L"111.130";
+	info1.latitude = 48.668837;
+	info1.longitude = 6.154990;
+
+	MoteInfoCSV info2;
+	info2.nomMote = L"Salle E1.22";
+	info2.numMote =L"151.105";
+	info2.longitude = 6.155363;
+	info2.latitude = 48.668922;
+
+	MoteInfoCSV info3;
+	info3.nomMote = L"Salle N0.3";
+	info3.numMote = L"32.131";
+	info3.latitude = 48.669400;//
+	info3.longitude = 6.155340;
+
+
+	MoteInfoCSV info4;
+	info4.nomMote = L"Bureau 2.6";
+	info4.numMote = L"97.145";
+	info4.latitude = 48.669439;
+	info4.longitude = 6.155265;
+
+	MoteInfoCSV info5;
+	info5.nomMote = L"Bureau 2.7";
+	info5.numMote = L"120.99";
+	info5.longitude = 6.155269;
+	info5.latitude = 48.669419;
+
+	MoteInfoCSV info6;
+	info6.nomMote = L"Bureau 2.8";
+	info6.numMote = L"200.124";
+	info6.longitude = 6.155287;
+	info6.latitude = 48.669394;
+
+	MoteInfoCSV info7;
+	info7.nomMote = L"Bureau 2.9";
+	info7.numMote = L"53.105";
+	info7.longitude = 6.155310;
+	info7.latitude = 48.669350;
+
+	listOfMote.push_back(info);
+	listOfMote.push_back(info1);
+	listOfMote.push_back(info2);
+	listOfMote.push_back(info3);
+	listOfMote.push_back(info4);
+	listOfMote.push_back(info5);
+	listOfMote.push_back(info6);
+	listOfMote.push_back(info7);
+
+
 }
 
 int MainPage::getDataFromServer()
@@ -145,10 +238,10 @@ int MainPage::getDataFromServer()
 void Projet_STER::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Amphis Nord
-	nomMote = "9.138"; 
+	//nomMote = "9.138"; 
 	Ver.unlock();
 	string s = "9.138";
-	//parseCSV(s, L"Google");
+	trouverMoteProche();
 }
 
 void Projet_STER::MainPage::OnTick(Object ^ sender, Object ^ e) {
@@ -156,12 +249,58 @@ void Projet_STER::MainPage::OnTick(Object ^ sender, Object ^ e) {
 	editHumidite->Text = humidite;
 	editBatterie->Text = batterie;
 	editLumiere->Text = lumiere;
+	editNumMote->Text = nomMote;
+	editNomSimpleText->Text = nomMoteSimple;
 }
 
 void Projet_STER::MainPage::AfficherInfo(Platform::String^ nomMote)
 {
 
 	
+}
+
+void Projet_STER::MainPage::trouverMoteProche()
+{
+
+	try
+	{
+		task<GeolocationAccessStatus> geolocationAccessRequestTask(Windows::Devices::Geolocation::Geolocator::RequestAccessAsync());
+		geolocationAccessRequestTask.then([this](task<GeolocationAccessStatus> accessStatusTask)
+		{
+			// Get will throw an exception if the task was canceled or failed with an error
+			auto accessStatus = accessStatusTask.get();
+
+			if (accessStatus == GeolocationAccessStatus::Allowed)
+			{
+
+				auto geolocator = ref new Windows::Devices::Geolocation::Geolocator();
+
+				task<Geoposition^> geopositionTask(geolocator->GetGeopositionAsync(), geopositionTaskTokenSource.get_token());
+				geopositionTask.then([this](task<Geoposition^> getPosTask)
+				{
+
+					// Get will throw an exception if the task was canceled or failed with an error
+					UpdateLocationData(getPosTask.get());
+				});
+			}
+			else if (accessStatus == GeolocationAccessStatus::Denied)
+			{
+				UpdateLocationData(nullptr);
+			}
+			else //GeolocationAccessStatus::Unspecified:
+			{
+				UpdateLocationData(nullptr);
+			}
+		});
+	}
+	catch (task_canceled&)
+	{
+		OutputDebugString(L"Cancelled");
+	}
+	catch (Exception^ ex)
+	{
+		OutputDebugString(L"Exception");
+	}
 }
 
 /*
@@ -181,65 +320,6 @@ Platform::String^ Projet_STER::MainPage::recupererDonneesMote(JsonObject^ objJso
 }
 
 
-/*
-	Permet d'extraire les données de lumière des données reçu d'une mote
-*/
-Platform::String^ Projet_STER::MainPage::parseCSV(std::string nomMote, Platform::String^ elmenet)
-{
-	
-
-	/*FILE *fp;
-	fp = fopen("C:\\motes_information.csv", "r");
-
-	StorageFolder^ storageFolder = ApplicationData::Current->LocalFolder;
-	create_task(storageFolder->GetFileAsync("sample.txt")).then([](StorageFile^ sampleFile)
-	{
-		float latitude, logitude;
-	string numMote, nomMoteGet;
-		while (fscanf(fp, "%g,%g,%s,%s\n", &latitude, &logitude, &numMote, &nomMoteGet) == 2)
-		{
-			if (numMote == "9.138") {
-				OutputDebugString(L"Trouvé");
-			}
-		}
-	});*/
-	StorageFolder^ storageFolder = ApplicationData::Current->LocalFolder;
-	create_task(storageFolder->GetFileAsync("motes_information.csv")).then([](StorageFile^ sampleFile)
-	{
-		return FileIO::ReadBufferAsync(sampleFile);
-
-	}).then([this](Streams::IBuffer^ buffer)
-	{
-		auto dataReader = DataReader::FromBuffer(buffer);
-		String^ bufferText = dataReader->ReadString(buffer->Length);
-		wstring csvFile = bufferText->Data();
-		float latitude, logitude;
-		string numMote, nomMoteGet;
-		using convert_type = std::codecvt_utf8<wchar_t>;
-		std::wstring_convert<convert_type, wchar_t> converter;
-		std::string s = converter.to_bytes(csvFile);
-		std::string delimiter = "\n";
-
-		size_t pos = 0;
-		std::string token;
-		std::string csvDelimiter = ",";
-		while ((pos = s.find(delimiter)) != std::string::npos) {
-
-			token = s.substr(0, pos);
-			std::vector<std::string> res = split(token, csvDelimiter);
-			MoteInfoCSV info;
-			info.nomMote = ref new String(converter.from_bytes(res[3].c_str()).c_str());
-			info.numMote = ref new String(converter.from_bytes(res[2].c_str()).c_str());
-			info.latitude = std::stod(res[0]);
-			info.longitude = std::stod(res[1]);
-			listOfMote.push_back(info);
-			s.erase(0, pos + delimiter.length());
-		}
-	});
-	
-	return L"9.138";
-}
-
 std::vector<std::string> Projet_STER::MainPage::split(std::string str, std::string sep) {
 	char* cstr = const_cast<char*>(str.c_str());
 	char* current;
@@ -251,3 +331,76 @@ std::vector<std::string> Projet_STER::MainPage::split(std::string str, std::stri
 	}
 	return arr;
 }
+
+void Projet_STER::MainPage::UpdateLocationData(Windows::Devices::Geolocation::Geoposition^ position)
+{
+	if (position != nullptr)
+	{
+
+		long double distMin = -1;
+		auto latitude = position->Coordinate->Point->Position.Latitude;
+		auto longitude = position->Coordinate->Point->Position.Longitude;
+		vector<MoteInfoCSV>::iterator it;
+		for (it = listOfMote.begin(); it != listOfMote.end(); ++it) {
+			MoteInfoCSV mote = *it;
+			auto res = distance(latitude, longitude, mote.latitude, mote.longitude);
+			if (distMin == -1 || distMin > res) {
+				distMin = res;
+				nomMote = mote.numMote;	
+				nomMoteSimple = mote.nomMote;
+			}
+		}
+	}
+}
+
+/*
+Source : https://www.geeksforgeeks.org/program-distance-two-points-earth/
+*/
+
+long double Projet_STER::MainPage::toRadians(const long double degree)
+{
+	// cmath library in C++  
+	// defines the constant 
+	// M_PI as the value of 
+	// pi accurate to 1e-30 
+	long double one_deg = (M_PI) / 180;
+	return (one_deg * degree);
+}
+/*
+Source :https://www.geeksforgeeks.org/program-distance-two-points-earth/
+*/
+long double Projet_STER::MainPage::distance(long double lat1, long double long1,
+	long double lat2, long double long2)
+{
+	// Convert the latitudes  
+	// and longitudes 
+	// from degree to radians. 
+	lat1 = toRadians(lat1);
+	long1 = toRadians(long1);
+	lat2 = toRadians(lat2);
+	long2 = toRadians(long2);
+
+	// Haversine Formula 
+	long double dlong = long2 - long1;
+	long double dlat = lat2 - lat1;
+
+	long double ans = pow(sin(dlat / 2), 2) +
+		cos(lat1) * cos(lat2) *
+		pow(sin(dlong / 2), 2);
+
+	ans = 2 * asin(sqrt(ans));
+
+	// Radius of Earth in  
+	// Kilometers, R = 6371 
+	// Use R = 3956 for miles 
+	long double R = 6371;
+
+	// Calculate the result 
+	ans = ans * R;
+
+
+	return ans;
+}
+
+
+

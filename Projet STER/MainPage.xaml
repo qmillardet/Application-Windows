@@ -26,5 +26,9 @@
         <TextBlock HorizontalAlignment="Left" Margin="37,437,0,0" Text="Lumière" TextWrapping="Wrap" VerticalAlignment="Top"/>
         <Button Content="Amphis Sud" HorizontalAlignment="Left" Margin="238,64,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.834,-0.358" Grid.ColumnSpan="2"/>
         <Button Content="Salle E1.22" HorizontalAlignment="Left" Margin="37,119,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="editNumMote" HorizontalAlignment="Left" Margin="147,481,0,0" Text="numMote" VerticalAlignment="Top" RenderTransformOrigin="0.091,0.32"/>
+        <TextBlock HorizontalAlignment="Left" Margin="37,488,0,0" Text="Num Mote" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="28,228,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="Nom Mote"/>
+        <TextBox x:Name="editNomSimpleText" HorizontalAlignment="Left" Margin="152,221,0,0" Text="TextBox" VerticalAlignment="Top"/>
     </Grid>
 </Page>
