@@ -35,6 +35,14 @@ namespace Projet_STER
 		Windows::Web::Http::HttpClient^ httpClient;
 		concurrency::cancellation_token_source cancellationTokenSource;
 		concurrency::cancellation_token_source geopositionTaskTokenSource;
+		void Button_Click_1(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void enable_localisation();
+		void disable_localisation();
+		void OnPositionChanged(Windows::Devices::Geolocation::Geolocator^ sender, Windows::Devices::Geolocation::PositionChangedEventArgs^ e);
+		void OnStatusChanged(Windows::Devices::Geolocation::Geolocator^ sender, Windows::Devices::Geolocation::StatusChangedEventArgs^ e);
+		Windows::Devices::Geolocation::Geolocator^ geolocator = nullptr;
+		Windows::Foundation::EventRegistrationToken positionToken;
+		Windows::Foundation::EventRegistrationToken statusToken;
 	};
 }
 

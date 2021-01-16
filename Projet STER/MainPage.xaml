@@ -14,11 +14,11 @@
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
         <Button Content="Amphis Nord" HorizontalAlignment="Left" Margin="37,64,0,0" VerticalAlignment="Top" Click="Button_Click"/>
-        <TextBox x:Name="editTemperature" HorizontalAlignment="Left" Margin="131,270,0,0" Text="Temperature" VerticalAlignment="Top"/>
-        <TextBox x:Name="editHumidite" HorizontalAlignment="Left" Margin="142,320,0,0" Text="Humidité" VerticalAlignment="Top"/>
+        <TextBox x:Name="editTemperature" HorizontalAlignment="Left" Margin="161,270,0,0" Text="Temperature" VerticalAlignment="Top" Width="98" IsReadOnly="True"/>
+        <TextBox x:Name="editHumidite" HorizontalAlignment="Left" Margin="161,320,0,0" Text="Humidité" VerticalAlignment="Top" Width="98" IsReadOnly="True"/>
         <TextBlock HorizontalAlignment="Left" Margin="27,373,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <TextBox x:Name="editBatterie" HorizontalAlignment="Left" Margin="146,375,0,0" Text="Batterie" VerticalAlignment="Top"/>
-        <TextBox x:Name="editLumiere" HorizontalAlignment="Left" Margin="142,430,0,0" Text="Humidité" VerticalAlignment="Top" />
+        <TextBox x:Name="editBatterie" HorizontalAlignment="Left" Margin="161,375,0,0" Text="Batterie" VerticalAlignment="Top" Width="98" IsReadOnly="True"/>
+        <TextBox x:Name="editLumiere" HorizontalAlignment="Left" Margin="161,430,0,0" Text="Humidité" VerticalAlignment="Top" Width="98" IsReadOnly="True" />
         <TextBlock HorizontalAlignment="Left" Margin="27,277,0,0" Text="Temperature" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="-1.997,3.613"/>
         <StackPanel HorizontalAlignment="Left" Height="100" Margin="83,0,0,0" VerticalAlignment="Center" Width="100"/>
         <TextBlock HorizontalAlignment="Left" Margin="37,327,0,0" Text="Humidité" TextWrapping="Wrap" VerticalAlignment="Top"/>
@@ -26,9 +26,9 @@
         <TextBlock HorizontalAlignment="Left" Margin="37,437,0,0" Text="Lumière" TextWrapping="Wrap" VerticalAlignment="Top"/>
         <Button Content="Amphis Sud" HorizontalAlignment="Left" Margin="238,64,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.834,-0.358" Grid.ColumnSpan="2"/>
         <Button Content="Salle E1.22" HorizontalAlignment="Left" Margin="37,119,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="editNumMote" HorizontalAlignment="Left" Margin="147,481,0,0" Text="numMote" VerticalAlignment="Top" RenderTransformOrigin="0.091,0.32"/>
+        <TextBox x:Name="editNumMote" HorizontalAlignment="Left" Margin="161,481,0,0" Text="numMote" VerticalAlignment="Top" RenderTransformOrigin="0.091,0.32" Width="98" IsReadOnly="True"/>
         <TextBlock HorizontalAlignment="Left" Margin="37,488,0,0" Text="Num Mote" TextWrapping="Wrap" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="28,228,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="Nom Mote"/>
-        <TextBox x:Name="editNomSimpleText" HorizontalAlignment="Left" Margin="152,221,0,0" Text="TextBox" VerticalAlignment="Top"/>
-    </Grid>
+        <TextBox x:Name="editNomSimpleText" HorizontalAlignment="Left" Margin="161,221,0,0" Text="TextBox" VerticalAlignment="Top" Width="98" IsReadOnly="True"/>
+        <Button x:Name="labLocAuto" Content="Localisation Auto" HorizontalAlignment="Left" Margin="206,119,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.737,-0.14" Grid.ColumnSpan="2" Click="Button_Click_1"/>    </Grid>
 </Page>

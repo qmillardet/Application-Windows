@@ -63,9 +63,14 @@ Projet_STER::MainPage^ instance;
 auto url = String::Concat("http://iotlab.telecomnancy.eu:8080/iotlab/rest/data/1/temperature-light2-light1-battery_indicator-humidity/1/", nomMote);
 Windows::Foundation::Uri^ uri = ref new Uri(url);
 
-
 HANDLE Verrou;
 shared_mutex Ver;
+
+bool notTake = false;
+
+Brush^ originalColor;
+bool originalColorBool = false;
+bool gpsReady = false;
 
 struct MoteInfoCSV {
 	Platform::String^ numMote;
@@ -143,6 +148,7 @@ static UINT Inc()
 
 			ToastNotificationManager::CreateToastNotifier()->Show(toast); // Show the toast
 		}
+		notTake = false;
 	}
 	return 0;
 }
@@ -226,6 +232,8 @@ MainPage::MainPage()
 	listOfMote.push_back(info6);
 	listOfMote.push_back(info7);
 
+	labLocAuto->Background = ref new SolidColorBrush(Windows::UI::Colors::Red);
+
 
 }
 
@@ -238,10 +246,14 @@ int MainPage::getDataFromServer()
 void Projet_STER::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Amphis Nord
-	//nomMote = "9.138"; 
-	Ver.unlock();
-	string s = "9.138";
-	trouverMoteProche();
+	if (!notTake) {
+		nomMote = "9.138"; 
+		nomMoteSimple = "Amphi Nord";
+		notTake = true;
+		Ver.unlock();
+	}
+	disable_localisation();
+	
 }
 
 void Projet_STER::MainPage::OnTick(Object ^ sender, Object ^ e) {
@@ -270,26 +282,35 @@ void Projet_STER::MainPage::trouverMoteProche()
 			// Get will throw an exception if the task was canceled or failed with an error
 			auto accessStatus = accessStatusTask.get();
 
-			if (accessStatus == GeolocationAccessStatus::Allowed)
+			switch (accessStatus)
 			{
-
-				auto geolocator = ref new Windows::Devices::Geolocation::Geolocator();
-
-				task<Geoposition^> geopositionTask(geolocator->GetGeopositionAsync(), geopositionTaskTokenSource.get_token());
-				geopositionTask.then([this](task<Geoposition^> getPosTask)
+			case GeolocationAccessStatus::Allowed:
+				// You should set MovementThreshold for distance-based tracking
+				// or ReportInterval for periodic-based tracking before adding event
+				// handlers. If none is set, a ReportInterval of 1 second is used
+				// as a default and a position will be returned every 1 second.
+				//
+				// Value of 2000 milliseconds (2 seconds)
+				// isn't a requirement, it is just an example.
+				if (geolocator == nullptr)
 				{
+					geolocator = ref new Geolocator();
+					geolocator->ReportInterval = 2000;
+				}
 
-					// Get will throw an exception if the task was canceled or failed with an error
-					UpdateLocationData(getPosTask.get());
-				});
-			}
-			else if (accessStatus == GeolocationAccessStatus::Denied)
-			{
-				UpdateLocationData(nullptr);
-			}
-			else //GeolocationAccessStatus::Unspecified:
-			{
-				UpdateLocationData(nullptr);
+				// Subscribe to PositionChanged event to get updated tracking positions
+				positionToken = geolocator->PositionChanged::add(ref new TypedEventHandler<Geolocator^, PositionChangedEventArgs^>(this, &Projet_STER::MainPage::OnPositionChanged));
+
+				// Subscribe to StatusChanged event to get updates of location status change
+				statusToken = geolocator->StatusChanged::add(ref new TypedEventHandler<Geolocator^, StatusChangedEventArgs^>(this, &Projet_STER::MainPage::OnStatusChanged));
+				break;
+
+			case GeolocationAccessStatus::Denied:
+				OutputDebugString(L"Localisation desactivée ");
+				break;
+
+			case GeolocationAccessStatus::Unspecified:
+				OutputDebugString(L"Localisation avec erreur inconnu ");
 			}
 		});
 	}
@@ -332,7 +353,7 @@ std::vector<std::string> Projet_STER::MainPage::split(std::string str, std::stri
 	return arr;
 }
 
-void Projet_STER::MainPage::UpdateLocationData(Windows::Devices::Geolocation::Geoposition^ position)
+/**void Projet_STER::MainPage::UpdateLocationData(Windows::Devices::Geolocation::Geoposition^ position)
 {
 	if (position != nullptr)
 	{
@@ -348,9 +369,58 @@ void Projet_STER::MainPage::UpdateLocationData(Windows::Devices::Geolocation::Ge
 				distMin = res;
 				nomMote = mote.numMote;	
 				nomMoteSimple = mote.nomMote;
+				OutputDebugString(L"Changement detecté");
+				try {
+					if (!notTake) {
+						notTake = true;
+						Ver.unlock();
+					}
+				}
+				catch (Exception^ e) {
+					OutputDebugString(L"Mutex Error");
+				}
 			}
 		}
 	}
+}*/
+
+void Projet_STER::MainPage::OnPositionChanged(Windows::Devices::Geolocation::Geolocator^ sender, PositionChangedEventArgs^ e)
+{
+	// We need to dispatch to the UI thread to display the output
+	Dispatcher->RunAsync(
+		CoreDispatcherPriority::Normal,
+		ref new DispatchedHandler(
+			[this, e]()
+	{
+
+		auto coordinate = e->Position->Coordinate;
+		long double distMin = -1;
+		auto latitude = coordinate->Point->Position.Latitude;
+		auto longitude = coordinate->Point->Position.Longitude;
+		vector<MoteInfoCSV>::iterator it;
+		for (it = listOfMote.begin(); it != listOfMote.end(); ++it) {
+			MoteInfoCSV mote = *it;
+			auto res = distance(latitude, longitude, mote.latitude, mote.longitude);
+			if ((distMin == -1 || distMin > res) && gpsReady) {
+				distMin = res;
+				nomMote = mote.numMote;
+				nomMoteSimple = mote.nomMote;
+				OutputDebugString(L"Changement detecté");
+				try {
+					if (!notTake) {
+						notTake = true;
+						Ver.unlock();
+					}
+				}
+				catch (Exception^ e) {
+					OutputDebugString(L"Mutex Error");
+				}
+			}
+		}
+	},
+			CallbackContext::Any
+		)
+	);
 }
 
 /*
@@ -404,3 +474,83 @@ long double Projet_STER::MainPage::distance(long double lat1, long double long1,
 
 
 
+
+
+void Projet_STER::MainPage::Button_Click_1(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+
+	trouverMoteProche();
+	if (originalColorBool) {
+		disable_localisation();
+	}
+	else {
+		enable_localisation();
+	}
+	
+}
+
+void Projet_STER::MainPage::enable_localisation() {
+	labLocAuto->Background = ref new SolidColorBrush(Windows::UI::Colors::Green);
+	originalColorBool = true;
+
+}
+
+void Projet_STER::MainPage::disable_localisation() {
+	labLocAuto->Background = ref new SolidColorBrush(Windows::UI::Colors::Red);
+	if (originalColorBool) {
+		geolocator->PositionChanged::remove(positionToken);
+		geolocator->StatusChanged::remove(statusToken);
+	}
+	originalColorBool = false;
+}
+
+void Projet_STER::MainPage::OnStatusChanged(Windows::Devices::Geolocation::Geolocator^ sender, StatusChangedEventArgs^ e)
+{
+	// We need to dispatch to the UI thread to display the output
+	Dispatcher->RunAsync(
+		CoreDispatcherPriority::Normal,
+		ref new DispatchedHandler(
+			[this, e]()
+	{
+		switch (e->Status)
+		{
+		case Windows::Devices::Geolocation::PositionStatus::Ready:
+			// Location platform is providing valid data.
+			gpsReady = true;
+			break;
+
+		case Windows::Devices::Geolocation::PositionStatus::Initializing:
+			// Location platform is attempting to acquire a fix.
+			gpsReady = false;
+			break;
+
+		case Windows::Devices::Geolocation::PositionStatus::NoData:
+			// Location platform could not obtain location data.
+			gpsReady = false;
+			break;
+
+		case Windows::Devices::Geolocation::PositionStatus::Disabled:
+			// The permission to access location data is denied by the user or other policies.
+			gpsReady = false;
+			break;
+
+		case Windows::Devices::Geolocation::PositionStatus::NotInitialized:
+			// The location platform is not initialized. This indicates that the application
+			// has not made a request for location data.
+			gpsReady = false;
+			break;
+
+		case Windows::Devices::Geolocation::PositionStatus::NotAvailable:
+			// The location platform is not available on this version of the OS.
+			gpsReady = false;
+			break;
+
+		default:
+			gpsReady = false;
+			break;
+		}
+	},
+			CallbackContext::Any
+		)
+	);
+}
