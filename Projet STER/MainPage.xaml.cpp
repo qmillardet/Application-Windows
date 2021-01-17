@@ -87,6 +87,8 @@ static UINT Inc()
 	while (TRUE) {
 		Ver.lock();
 		bool reussi = false;
+		url = String::Concat("http://iotlab.telecomnancy.eu:8080/iotlab/rest/data/1/temperature-light2-light1-battery_indicator-humidity/1/", nomMote);
+		uri = ref new Uri(url);
 		Windows::Web::Http::HttpClient^ httpClient = ref new HttpClient();
 		auto my_task = create_task(httpClient->GetStringAsync(uri))
 			.then([](Platform::String^ Tet)
@@ -96,28 +98,52 @@ static UINT Inc()
 			Platform::String^ label = "temperature";
 			JsonArray^ data = objJson->GetObject()->GetNamedArray("data")->GetArray();
 			int jsonArraySize = data->Size;
+			bool found = false;
 			for (int i = 0; i < jsonArraySize; i++) {
 				if (data->GetObjectAt(i)->GetNamedString("label")->Equals(label)) {
 					temprature = data->GetObjectAt(i)->GetNamedValue("value")->ToString();
+					found = true;
 				}
 			}
+			if (!found) {
+				temprature = L"Aucune données";
+
+			}
+			found = false;
 			label = "humidity";
 			for (int i = 0; i < jsonArraySize; i++) {
 				if (data->GetObjectAt(i)->GetNamedString("label")->Equals(label)) {
 					humidite = data->GetObjectAt(i)->GetNamedValue("value")->ToString();
+					found = true;
 				}
 			}
+			if (!found) {
+				humidite = L"Aucune données";
+
+			}
+			found = false;
 			label = "light1";
 			for (int i = 0; i < jsonArraySize; i++) {
 				if (data->GetObjectAt(i)->GetNamedString("label")->Equals(label)) {
 					lumiere = data->GetObjectAt(i)->GetNamedValue("value")->ToString();
+					found = true;
 				}
 			}
+			if (!found) {
+				lumiere = L"Aucune données";
+
+			}
+			found = false;
 			label = "battery_indicator";
 			for (int i = 0; i < jsonArraySize; i++) {
 				if (data->GetObjectAt(i)->GetNamedString("label")->Equals(label)) {
 					batterie = data->GetObjectAt(i)->GetNamedValue("value")->ToString();
+					found = true;
 				}
+			}
+			if (!found) {
+				batterie  = L"Aucune données";
+
 			}
 
 
@@ -247,13 +273,12 @@ void Projet_STER::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::
 {
 	// Amphis Nord
 	if (!notTake) {
-		nomMote = "9.138"; 
+		nomMote = "9.138";
 		nomMoteSimple = "Amphi Nord";
 		notTake = true;
 		Ver.unlock();
 	}
 	disable_localisation();
-	
 }
 
 void Projet_STER::MainPage::OnTick(Object ^ sender, Object ^ e) {
@@ -553,4 +578,95 @@ void Projet_STER::MainPage::OnStatusChanged(Windows::Devices::Geolocation::Geolo
 			CallbackContext::Any
 		)
 	);
+}
+
+void Projet_STER::MainPage::Button_Click_2(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	// Amphis Nord
+	if (!notTake) {
+		nomMote = "111.130";
+		nomMoteSimple = "Amphi Sud";
+		notTake = true;
+		Ver.unlock();
+	}
+	disable_localisation();
+
+}
+
+
+void Projet_STER::MainPage::Button_Click_3(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	// Salle N0.3 -> 32.131
+	if (!notTake) {
+		nomMote = "32.131";
+		nomMoteSimple = "Salle N0.3";
+		notTake = true;
+		Ver.unlock();
+	}
+	disable_localisation();
+}
+
+
+void Projet_STER::MainPage::Button_Click_4(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	// Salle E1.22 -> 32.131
+	if (!notTake) {
+		nomMote = "151.105";
+		nomMoteSimple = "Salle E1.22";
+		notTake = true;
+		Ver.unlock();
+	}
+	disable_localisation();
+}
+
+
+void Projet_STER::MainPage::Button_Click_5(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	// Bureau 2.6 -> 97.145
+	if (!notTake) {
+		nomMote = "97.145";
+		nomMoteSimple = "Bureau 2.6";
+		notTake = true;
+		Ver.unlock();
+	}
+	disable_localisation();
+}
+
+
+void Projet_STER::MainPage::Button_Click_6(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	// Bureau 2.7 -> 120.99
+	if (!notTake) {
+		nomMote = "120.99";
+		nomMoteSimple = "Bureau 2.7";
+		notTake = true;
+		Ver.unlock();
+	}
+	disable_localisation();
+}
+
+
+void Projet_STER::MainPage::Button_Click_7(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	// Bureau 2.8 -> 200.124
+	if (!notTake) {
+		nomMote = "200.124";
+		nomMoteSimple = "Bureau 2.8";
+		notTake = true;
+		Ver.unlock();
+	}
+	disable_localisation();
+}
+
+
+void Projet_STER::MainPage::Button_Click_8(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	// Bureau 2.9 -> 200.124
+	if (!notTake) {
+		nomMote = "53.105";
+		nomMoteSimple = "Bureau 2.9";
+		notTake = true;
+		Ver.unlock();
+	}
+	disable_localisation();
 }

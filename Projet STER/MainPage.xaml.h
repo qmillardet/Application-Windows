@@ -43,6 +43,13 @@ namespace Projet_STER
 		Windows::Devices::Geolocation::Geolocator^ geolocator = nullptr;
 		Windows::Foundation::EventRegistrationToken positionToken;
 		Windows::Foundation::EventRegistrationToken statusToken;
+		void Button_Click_2(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void Button_Click_3(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void Button_Click_4(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void Button_Click_5(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void Button_Click_6(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void Button_Click_7(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+		void Button_Click_8(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 	};
 }
 
