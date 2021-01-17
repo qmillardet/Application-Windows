@@ -95,7 +95,11 @@ auto url = String::Concat("http://iotlab.telecomnancy.eu:8080/iotlab/rest/data/1
 Windows::Foundation::Uri^ uri = ref new Uri(url);
 
 
+/*
+ * Gestion du Mutex 
+ */
 HANDLE Verrou;
+
 /*
  * Mutex pour exclure l'utilisation unique de la ressource
  */
@@ -107,6 +111,9 @@ shared_mutex Ver;
 bool notTake = false;
 
 
+/*
+ * Conservation de la couleur originale
+ */
 Brush^ originalColor;
 /*
  * Varaible perettant de confirmer la présence ou non de la localisation
@@ -335,9 +342,12 @@ MainPage::MainPage()
 
 
 }
-
+/** 
+  * (Deprecated) Méthode utilisée pour récupéré les données 
+  */
 int MainPage::getDataFromServer()
 {
+	Ver.unlock();
 	return 0;
 }
 
@@ -368,6 +378,9 @@ void Projet_STER::MainPage::OnTick(Object ^ sender, Object ^ e) {
 	editNomSimpleText->Text = nomMoteSimple;
 }
 
+/**
+  * (Deprecated) Méthode utilisée pour Afficher les données
+  */
 void Projet_STER::MainPage::AfficherInfo(Platform::String^ nomMote)
 {
 
