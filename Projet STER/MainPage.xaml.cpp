@@ -45,33 +45,82 @@ using namespace Windows::Devices::Geolocation;
 
 using namespace std;
 // Pour plus d'informations sur le modèle d'élément Page vierge, consultez la page https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
-
+/*
+Gestion des Thrads 
+*/
 DWORD MyThreadIDDec;
 HANDLE MyThreadDec;
-
 std::mutex My_mutex_dec;
 
+/*
+ * Stockage du nom de la mote à rechercher
+ */
 Platform::String^ nomMote;
+
+/*
+ * Stockage de la température de la mote
+ */
 Platform::String^ temprature;
+
+/*
+ * Stockage de l'humidité de la mote
+ */
 Platform::String^ humidite;
+
+/*
+ * Stockage de la batterue de la mote
+ */
 Platform::String^ batterie;
+
+/*
+ * Stockage de la lumière de la mote
+ */
 Platform::String^ lumiere;
+
+/*
+ * Emplacement de la mote
+ */
 Platform::String^ nomMoteSimple;
 
 Projet_STER::MainPage^ instance;
 
+/*
+ * Création de la varaible
+ */
 auto url = String::Concat("http://iotlab.telecomnancy.eu:8080/iotlab/rest/data/1/temperature-light2-light1-battery_indicator-humidity/1/", nomMote);
+
+/*
+ * Création de la variable 
+ */
 Windows::Foundation::Uri^ uri = ref new Uri(url);
 
+
 HANDLE Verrou;
+/*
+ * Mutex pour exclure l'utilisation unique de la ressource
+ */
 shared_mutex Ver;
 
+/*
+ * Peremt de limiter le nombre de déverouillage du Mutex (evite un bug lors du click simultanée plusieurs fois sur le mutex)
+ */
 bool notTake = false;
 
+
 Brush^ originalColor;
+/*
+ * Varaible perettant de confirmer la présence ou non de la localisation
+ */
 bool originalColorBool = false;
+
+/*
+ * Variable permettant de confirmer que le GPS est initialisé
+ */
 bool gpsReady = false;
 
+/*
+ * Structure permettant de gérer les informations des motes
+ */
 struct MoteInfoCSV {
 	Platform::String^ numMote;
 	Platform::String^ nomMote;
@@ -79,8 +128,15 @@ struct MoteInfoCSV {
 	double longitude;
 };
 
+/*
+ * Liste des motes disponibles
+ */
 std::vector<MoteInfoCSV> listOfMote;
 
+
+/*
+ * (Thread) Méthode appelée pour rechercher les données via l'API de l'école
+ */
 static UINT Inc()
 {
 	Sleep(1);	//attente pour la création du Mutex
@@ -94,6 +150,10 @@ static UINT Inc()
 			.then([](Platform::String^ Tet)
 		{
 
+			/**
+			  * Traitement des données
+			  * Et gestion de l'affichage si pas trouvée
+			  */
 			auto objJson = JsonObject::Parse(Tet);
 			Platform::String^ label = "temperature";
 			JsonArray^ data = objJson->GetObject()->GetNamedArray("data")->GetArray();
@@ -153,6 +213,9 @@ static UINT Inc()
 			my_task.wait();
 		}
 		catch (Exception^ e) {
+			/**
+			  *  Création d'une notification lorsque la récupération des données ne fonctionne pas
+			  */
 			String^ xml = "<toast activationType='foreground'>"
 				"<visual>"
 				"<binding template='ToastGeneric'>"
@@ -179,13 +242,20 @@ static UINT Inc()
 	return 0;
 }
 
+
+/**
+  * Fonction appelée lors la création de la fonction
+  */
 MainPage::MainPage()
 {
 	InitializeComponent();
 	MainPage::getDataFromServer();
+
+	// Mise à jour des données d'affichage régluièrement
+
 	auto timer = ref new Windows::UI::Xaml::DispatcherTimer();
 	TimeSpan ts;
-	ts.Duration = 2000;
+	ts.Duration = 2000; // En ms
 	timer->Interval = ts;
 	timer->Start();
 	auto registrationtoken = timer->Tick += ref new EventHandler<Object^>(this, &MainPage::OnTick);
@@ -199,6 +269,8 @@ MainPage::MainPage()
 
 	//Sauvegarde
 	instance = this;
+
+	// Création des motes
 
 	MoteInfoCSV info;
 	info.nomMote = L"Amphi Nord";
@@ -258,6 +330,7 @@ MainPage::MainPage()
 	listOfMote.push_back(info6);
 	listOfMote.push_back(info7);
 
+	// Mise en rouge du ton indiquant la localisation en continu
 	labLocAuto->Background = ref new SolidColorBrush(Windows::UI::Colors::Red);
 
 
@@ -268,7 +341,9 @@ int MainPage::getDataFromServer()
 	return 0;
 }
 
-
+/**
+  * Gestion de la mis à jour des données après appuis sur le bouton Amphi Nord
+  */
 void Projet_STER::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Amphis Nord
@@ -281,6 +356,9 @@ void Projet_STER::MainPage::Button_Click(Platform::Object^ sender, Windows::UI::
 	disable_localisation();
 }
 
+/**
+  * Fonction mettant à jour les données affiahcé toutes les X temps, pas de changement temps réel pour n affichage plus fluide
+  */
 void Projet_STER::MainPage::OnTick(Object ^ sender, Object ^ e) {
 	editTemperature->Text = temprature;
 	editHumidite->Text = humidite;
@@ -293,9 +371,12 @@ void Projet_STER::MainPage::OnTick(Object ^ sender, Object ^ e) {
 void Projet_STER::MainPage::AfficherInfo(Platform::String^ nomMote)
 {
 
-	
-}
 
+} 
+
+/**
+  * Fonction déclenchant la recherche des motes
+  */
 void Projet_STER::MainPage::trouverMoteProche()
 {
 
@@ -349,9 +430,9 @@ void Projet_STER::MainPage::trouverMoteProche()
 	}
 }
 
-/*
-	Permet d'extraire les données de lumière des données reçu d'une mote
-*/
+/**
+  *	Permet d'extraire les données de lumière des données reçu d'une mote
+  */
 Platform::String^ Projet_STER::MainPage::recupererDonneesMote(JsonObject^ objJson, Platform::String^ label)
 {
 	Platform::String^ res = "";
@@ -365,7 +446,9 @@ Platform::String^ Projet_STER::MainPage::recupererDonneesMote(JsonObject^ objJso
 	return res;
 }
 
-
+/**
+  * Fonction permettant de splitter une chaine de caractères
+  */
 std::vector<std::string> Projet_STER::MainPage::split(std::string str, std::string sep) {
 	char* cstr = const_cast<char*>(str.c_str());
 	char* current;
@@ -378,37 +461,9 @@ std::vector<std::string> Projet_STER::MainPage::split(std::string str, std::stri
 	return arr;
 }
 
-/**void Projet_STER::MainPage::UpdateLocationData(Windows::Devices::Geolocation::Geoposition^ position)
-{
-	if (position != nullptr)
-	{
-
-		long double distMin = -1;
-		auto latitude = position->Coordinate->Point->Position.Latitude;
-		auto longitude = position->Coordinate->Point->Position.Longitude;
-		vector<MoteInfoCSV>::iterator it;
-		for (it = listOfMote.begin(); it != listOfMote.end(); ++it) {
-			MoteInfoCSV mote = *it;
-			auto res = distance(latitude, longitude, mote.latitude, mote.longitude);
-			if (distMin == -1 || distMin > res) {
-				distMin = res;
-				nomMote = mote.numMote;	
-				nomMoteSimple = mote.nomMote;
-				OutputDebugString(L"Changement detecté");
-				try {
-					if (!notTake) {
-						notTake = true;
-						Ver.unlock();
-					}
-				}
-				catch (Exception^ e) {
-					OutputDebugString(L"Mutex Error");
-				}
-			}
-		}
-	}
-}*/
-
+/**
+  * Fonction appelée lorsque la position de l'appareil change
+  */
 void Projet_STER::MainPage::OnPositionChanged(Windows::Devices::Geolocation::Geolocator^ sender, PositionChangedEventArgs^ e)
 {
 	// We need to dispatch to the UI thread to display the output
@@ -448,9 +503,10 @@ void Projet_STER::MainPage::OnPositionChanged(Windows::Devices::Geolocation::Geo
 	);
 }
 
-/*
-Source : https://www.geeksforgeeks.org/program-distance-two-points-earth/
-*/
+/**
+  * Fonction permttant de passer de degré à radiant
+  * Source : https://www.geeksforgeeks.org/program-distance-two-points-earth/
+  */
 
 long double Projet_STER::MainPage::toRadians(const long double degree)
 {
@@ -461,9 +517,11 @@ long double Projet_STER::MainPage::toRadians(const long double degree)
 	long double one_deg = (M_PI) / 180;
 	return (one_deg * degree);
 }
-/*
-Source :https://www.geeksforgeeks.org/program-distance-two-points-earth/
-*/
+
+/**
+  * Fonction permttant de calculer la distance entre deux points GPS
+  * Source : https://www.geeksforgeeks.org/program-distance-two-points-earth/
+  */
 long double Projet_STER::MainPage::distance(long double lat1, long double long1,
 	long double lat2, long double long2)
 {
@@ -500,10 +558,11 @@ long double Projet_STER::MainPage::distance(long double lat1, long double long1,
 
 
 
-
+/**
+  * Fonction permettant de gérer l'action lié au bouton localisation
+  */
 void Projet_STER::MainPage::Button_Click_1(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-
 	trouverMoteProche();
 	if (originalColorBool) {
 		disable_localisation();
@@ -514,12 +573,18 @@ void Projet_STER::MainPage::Button_Click_1(Platform::Object^ sender, Windows::UI
 	
 }
 
+/**
+  * Fonction permettant de gérer l'activation de la localistion
+  */
 void Projet_STER::MainPage::enable_localisation() {
 	labLocAuto->Background = ref new SolidColorBrush(Windows::UI::Colors::Green);
 	originalColorBool = true;
 
 }
 
+/**
+  * Fonction permettant de gérer la desactivation de la localistion
+  */
 void Projet_STER::MainPage::disable_localisation() {
 	labLocAuto->Background = ref new SolidColorBrush(Windows::UI::Colors::Red);
 	if (originalColorBool) {
@@ -529,6 +594,9 @@ void Projet_STER::MainPage::disable_localisation() {
 	originalColorBool = false;
 }
 
+/**
+  * Fonction permettant de gérer le changement de statut du GPS
+  */
 void Projet_STER::MainPage::OnStatusChanged(Windows::Devices::Geolocation::Geolocator^ sender, StatusChangedEventArgs^ e)
 {
 	// We need to dispatch to the UI thread to display the output
@@ -580,9 +648,17 @@ void Projet_STER::MainPage::OnStatusChanged(Windows::Devices::Geolocation::Geolo
 	);
 }
 
+/**
+  * Gestion de la mis à jour des données après appuis sur le bouton Amphi Sud
+  */
 void Projet_STER::MainPage::Button_Click_2(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	// Amphis Nord
+	// Amphis Sud
+
+	temprature = "";
+	humidite = "";
+	batterie = "";
+	lumiere = "";
 	if (!notTake) {
 		nomMote = "111.130";
 		nomMoteSimple = "Amphi Sud";
@@ -593,10 +669,17 @@ void Projet_STER::MainPage::Button_Click_2(Platform::Object^ sender, Windows::UI
 
 }
 
-
+/**
+  * Gestion de la mis à jour des données après appuis sur le bouton Salle N0.3
+  */
 void Projet_STER::MainPage::Button_Click_3(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Salle N0.3 -> 32.131
+
+	temprature = "";
+	humidite = "";
+	batterie = "";
+	lumiere = "";
 	if (!notTake) {
 		nomMote = "32.131";
 		nomMoteSimple = "Salle N0.3";
@@ -607,9 +690,17 @@ void Projet_STER::MainPage::Button_Click_3(Platform::Object^ sender, Windows::UI
 }
 
 
+/**
+  * Gestion de la mis à jour des données après appuis sur le bouton Salle E1.22
+  */
 void Projet_STER::MainPage::Button_Click_4(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Salle E1.22 -> 32.131
+
+	temprature = "";
+	humidite = "";
+	batterie = "";
+	lumiere = "";
 	if (!notTake) {
 		nomMote = "151.105";
 		nomMoteSimple = "Salle E1.22";
@@ -619,10 +710,17 @@ void Projet_STER::MainPage::Button_Click_4(Platform::Object^ sender, Windows::UI
 	disable_localisation();
 }
 
-
+/**
+  * Gestion de la mis à jour des données après appuis sur le bouton Bureau 2.6
+  */
 void Projet_STER::MainPage::Button_Click_5(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Bureau 2.6 -> 97.145
+
+	temprature = "";
+	humidite = "";
+	batterie = "";
+	lumiere = "";
 	if (!notTake) {
 		nomMote = "97.145";
 		nomMoteSimple = "Bureau 2.6";
@@ -633,9 +731,17 @@ void Projet_STER::MainPage::Button_Click_5(Platform::Object^ sender, Windows::UI
 }
 
 
+/**
+  * Gestion de la mis à jour des données après appuis sur le bouton Bureau 2.7
+  */
 void Projet_STER::MainPage::Button_Click_6(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Bureau 2.7 -> 120.99
+
+	temprature = "";
+	humidite = "";
+	batterie = "";
+	lumiere = "";
 	if (!notTake) {
 		nomMote = "120.99";
 		nomMoteSimple = "Bureau 2.7";
@@ -645,10 +751,17 @@ void Projet_STER::MainPage::Button_Click_6(Platform::Object^ sender, Windows::UI
 	disable_localisation();
 }
 
-
+/**
+  * Gestion de la mis à jour des données après appuis sur le bouton Bureau 2.8
+  */
 void Projet_STER::MainPage::Button_Click_7(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Bureau 2.8 -> 200.124
+
+	temprature = "";
+	humidite = "";
+	batterie = "";
+	lumiere = "";
 	if (!notTake) {
 		nomMote = "200.124";
 		nomMoteSimple = "Bureau 2.8";
@@ -659,9 +772,17 @@ void Projet_STER::MainPage::Button_Click_7(Platform::Object^ sender, Windows::UI
 }
 
 
+/**
+  * Gestion de la mis à jour des données après appuis sur le bouton Bureau 2.9
+  */
 void Projet_STER::MainPage::Button_Click_8(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
 	// Bureau 2.9 -> 200.124
+
+	temprature = "";
+	humidite = "";
+	batterie = "";
+	lumiere = "";
 	if (!notTake) {
 		nomMote = "53.105";
 		nomMoteSimple = "Bureau 2.9";
