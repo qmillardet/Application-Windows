@@ -481,7 +481,7 @@ void Projet_STER::MainPage::OnPositionChanged(Windows::Devices::Geolocation::Geo
 		for (it = listOfMote.begin(); it != listOfMote.end(); ++it) {
 			MoteInfoCSV mote = *it;
 			auto res = distance(latitude, longitude, mote.latitude, mote.longitude);
-			if ((distMin == -1 || distMin > res) && gpsReady) {
+			if ((distMin == -1 || distMin > res) && gpsReady && originalColorBool) {
 				distMin = res;
 				nomMote = mote.numMote;
 				nomMoteSimple = mote.nomMote;
@@ -588,6 +588,7 @@ void Projet_STER::MainPage::enable_localisation() {
 void Projet_STER::MainPage::disable_localisation() {
 	labLocAuto->Background = ref new SolidColorBrush(Windows::UI::Colors::Red);
 	if (originalColorBool) {
+		OutputDebugString(L"Je passe bein là \n");
 		geolocator->PositionChanged::remove(positionToken);
 		geolocator->StatusChanged::remove(statusToken);
 	}
