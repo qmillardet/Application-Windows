@@ -347,7 +347,6 @@ MainPage::MainPage()
   */
 int MainPage::getDataFromServer()
 {
-	Ver.unlock();
 	return 0;
 }
 
