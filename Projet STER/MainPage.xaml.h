@@ -16,12 +16,10 @@ namespace Projet_STER
 	{
 	public:
 		MainPage();
-		int getDataFromServer();
 
 	private:
 		void Button_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void OnTick(Object ^ sender, Object ^ e);
-		void AfficherInfo(Platform::String^ nomMote);
 		void trouverMoteProche();
 		Platform::String^ recupererDonneesMote(Windows::Data::Json::JsonObject^ objJson, Platform::String^ label);
 		Platform::String ^ parseCSV(std::string nomMote, Platform::String ^ elmenet);

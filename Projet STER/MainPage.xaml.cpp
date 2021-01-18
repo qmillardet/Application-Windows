@@ -256,7 +256,6 @@ static UINT Inc()
 MainPage::MainPage()
 {
 	InitializeComponent();
-	MainPage::getDataFromServer();
 
 	// Mise à jour des données d'affichage régluièrement
 
@@ -342,13 +341,6 @@ MainPage::MainPage()
 
 
 }
-/** 
-  * (Deprecated) Méthode utilisée pour récupéré les données 
-  */
-int MainPage::getDataFromServer()
-{
-	return 0;
-}
 
 /**
   * Gestion de la mis à jour des données après appuis sur le bouton Amphi Nord
@@ -376,15 +368,6 @@ void Projet_STER::MainPage::OnTick(Object ^ sender, Object ^ e) {
 	editNumMote->Text = nomMote;
 	editNomSimpleText->Text = nomMoteSimple;
 }
-
-/**
-  * (Deprecated) Méthode utilisée pour Afficher les données
-  */
-void Projet_STER::MainPage::AfficherInfo(Platform::String^ nomMote)
-{
-
-
-} 
 
 /**
   * Fonction déclenchant la recherche des motes
