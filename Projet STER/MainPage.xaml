@@ -12,27 +12,27 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Button Content="Amphis Nord" HorizontalAlignment="Left" Margin="20,64,0,0" VerticalAlignment="Top" Width="105" Click="Button_Click"/>
-        <TextBox x:Name="editTemperature" HorizontalAlignment="Right" Margin="0,360,20,0" Text="Temperature" VerticalAlignment="Top" IsReadOnly="True" RenderTransformOrigin="1.106,0.548" Width="105"/>
-        <TextBox x:Name="editHumidite" HorizontalAlignment="Right" Margin="0,410,20,0" Text="Humidité" VerticalAlignment="Top" Width="105" IsReadOnly="True"/>
+        <Button Content="Amphis Nord" HorizontalAlignment="Left" Margin="20,64,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click"/>
+        <TextBox x:Name="editTemperature" HorizontalAlignment="Right" Margin="0,360,20,0" Text="Temperature" VerticalAlignment="Top" IsReadOnly="True" RenderTransformOrigin="1.106,0.548" Width="120"/>
+        <TextBox x:Name="editHumidite" HorizontalAlignment="Right" Margin="0,410,20,0" Text="Humidité" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
         <TextBlock HorizontalAlignment="Left" Margin="27,373,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <TextBox x:Name="editBatterie" HorizontalAlignment="Right" Margin="0,460,20,0" Text="Batterie" VerticalAlignment="Top" Width="105" IsReadOnly="True"/>
-        <TextBox x:Name="editLumiere" HorizontalAlignment="Right" Margin="0,510,20,0" Text="Humidité" VerticalAlignment="Top" Width="105" IsReadOnly="True" />
+        <TextBox x:Name="editBatterie" HorizontalAlignment="Right" Margin="0,460,20,0" Text="Batterie" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
+        <TextBox x:Name="editLumiere" HorizontalAlignment="Right" Margin="0,510,20,0" Text="Humidité" VerticalAlignment="Top" Width="120" IsReadOnly="True" />
         <TextBlock HorizontalAlignment="Left" Margin="40,367,0,0" Text="Temperature" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="-1.997,3.613"/>
         <TextBlock HorizontalAlignment="Left" Margin="40,417,0,0" Text="Humidité" TextWrapping="Wrap" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="40,467,0,0" Text="Batterie" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="0.658,0.641"/>
         <TextBlock HorizontalAlignment="Left" Margin="40,517,0,0" Text="Lumière" TextWrapping="Wrap" VerticalAlignment="Top" RenderTransformOrigin="-0.242,0.554"/>
-        <Button Content="Amphis Sud" HorizontalAlignment="Right" Margin="0,64,20,0" VerticalAlignment="Top" RenderTransformOrigin="-0.834,-0.358" Click="Button_Click_2" Width="105"/>
-        <Button Content="Salle E1.22" HorizontalAlignment="Left" Margin="20,114,0,0" VerticalAlignment="Top" Width="103" Click="Button_Click_4"/>
-        <TextBox x:Name="editNumMote" HorizontalAlignment="Right" Margin="0,564,20,0" Text="numMote" VerticalAlignment="Top" RenderTransformOrigin="0.091,0.32" Width="105" IsReadOnly="True"/>
+        <Button Content="Amphis Sud" HorizontalAlignment="Right" Margin="0,64,20,0" VerticalAlignment="Top" RenderTransformOrigin="-0.834,-0.358" Click="Button_Click_2" Width="120"/>
+        <Button Content="Salle E1.22" HorizontalAlignment="Left" Margin="20,114,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click_4"/>
+        <TextBox x:Name="editNumMote" HorizontalAlignment="Right" Margin="0,564,20,0" Text="numMote" VerticalAlignment="Top" RenderTransformOrigin="0.091,0.32" Width="120" IsReadOnly="True"/>
         <TextBlock HorizontalAlignment="Left" Margin="40,567,0,0" Text="Num Mote" TextWrapping="Wrap" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="40,317,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="Nom Mote"/>
-        <TextBox x:Name="editNomSimpleText" HorizontalAlignment="Right" Margin="0,310,20,0" Text="TextBox" VerticalAlignment="Top" Width="105" IsReadOnly="True"/>
+        <TextBox x:Name="editNomSimpleText" HorizontalAlignment="Right" Margin="0,310,20,0" Text="TextBox" VerticalAlignment="Top" Width="120" IsReadOnly="True"/>
         <Button x:Name="labLocAuto" Content="Localisation Auto" HorizontalAlignment="Center" Margin="0,10,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.737,-0.14" Click="Button_Click_1" Width="320"/>
-        <Button Content="Bureau 2.6" HorizontalAlignment="Left" Margin="20,164,0,0" VerticalAlignment="Top" Width="105" Click="Button_Click_5"/>
-        <Button Content="Salle N0.3" HorizontalAlignment="Right" Margin="0,114,20,0" VerticalAlignment="Top" Width="105" Click="Button_Click_3"/>
-        <Button Content="Bureau 2.7" HorizontalAlignment="Right" Margin="0,164,20,0" VerticalAlignment="Top" Width="105" Click="Button_Click_6"/>
-        <Button Content="Bureau 2.8" HorizontalAlignment="Left" Margin="18,214,0,0" VerticalAlignment="Top" Width="105" Click="Button_Click_7"/>
-        <Button Content="Bureau 2.9" HorizontalAlignment="Right" Margin="0,214,20,0" VerticalAlignment="Top" Width="105" Click="Button_Click_8"/>
+        <Button Content="Bureau 2.6" HorizontalAlignment="Left" Margin="20,164,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click_5"/>
+        <Button Content="Salle N0.3" HorizontalAlignment="Right" Margin="0,114,20,0" VerticalAlignment="Top" Width="120" Click="Button_Click_3"/>
+        <Button Content="Bureau 2.7" HorizontalAlignment="Right" Margin="0,164,20,0" VerticalAlignment="Top" Width="120" Click="Button_Click_6"/>
+        <Button Content="Bureau 2.8" HorizontalAlignment="Left" Margin="18,214,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click_7"/>
+        <Button Content="Bureau 2.9" HorizontalAlignment="Right" Margin="0,214,20,0" VerticalAlignment="Top" Width="120" Click="Button_Click_8"/>
     </Grid>
 </Page>
