@@ -12,6 +12,8 @@ Autheurs
 Guide l'utilisateur
 -------------------
 
+Nom de l'application : Projet STER
+
 
 L'application est utilisable de deux façons :
  - Via la localisation, qui est activée lorsque l'on appuie sur le bouton Localisation Auto. Elle est activée lorsque ce bouton est vert.
